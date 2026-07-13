@@ -1,4 +1,4 @@
-GITLAB DUO CLI SWITCHER 8.3.2 MINIMAL
+﻿GITLAB DUO CLI SWITCHER 8.3.2 MINIMAL
 
 В архиве только 4 файла:
 - Run.cmd
