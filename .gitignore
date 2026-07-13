@@ -1,0 +1,30 @@
+# Local runtime output
+bin/
+logs/
+project-state/
+usage-cache/
+checkpoints/
+profiles/
+*.log
+*.tmp
+*.bak
+*.status
+*.exe
+
+# Secrets and local configuration
+.env
+.env.*
+config.yml
+profiles.json
+hooks.json
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editors
+.vscode/
+.idea/
+*.user
+*.suo
