@@ -5,6 +5,10 @@ on:
     paths:
       - "package-parts/**"
       - ".github/workflows/assemble-package.yml"
+  pull_request:
+    paths:
+      - "package-parts/**"
+      - ".github/workflows/assemble-package.yml"
   workflow_dispatch:
 
 permissions:
@@ -16,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Assemble ZIP and extract browsable source
         shell: bash
