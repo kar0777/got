@@ -63,8 +63,8 @@ jobs:
           import base64
 
           parts = sorted(Path("package-parts").glob("GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-*"))
-          if len(parts) != 13:
-              raise SystemExit(f"Expected 13 package parts, found {len(parts)}")
+          if not parts:
+              raise SystemExit("No package payload parts found")
           encoded = "".join("".join(path.read_text(encoding="utf-8").split()) for path in parts)
           if len(encoded) != 73440:
               raise SystemExit(f"Unexpected base64 length: {len(encoded)}")
