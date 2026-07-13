@@ -1,0 +1,16 @@
+parts=12
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-01=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-02=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-03=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-04=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-06=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-07=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-08=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-09=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-10=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-11=6001
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-12=6000
+GitLabDuoCLI-Switcher-v8.3.2.zip.b64.part-13=1440
+base64_length=67441
+decoded_size=50580
+sha256=d8f3c39131cc64b4a7066dd753d17701da7f44d1c39c63291c82cf45fc8cf2b2
