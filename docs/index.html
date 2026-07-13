@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="GitLab Duo CLI Switcher — несколько GitLab Duo-аккаунтов, один локальный проект и перенос компактного контекста между профилями." />
+  <title>GitLab Duo CLI Switcher</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b14;
+      --panel: rgba(23, 27, 47, .78);
+      --panel-2: rgba(14, 17, 31, .9);
+      --text: #f5f7ff;
+      --muted: #aab2ce;
+      --violet: #8b5cf6;
+      --blue: #38bdf8;
+      --orange: #fc6d26;
+      --green: #34d399;
+      --line: rgba(255,255,255,.1);
+      --shadow: 0 24px 80px rgba(0,0,0,.45);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(139,92,246,.22), transparent 34%),
+        radial-gradient(circle at 85% 18%, rgba(56,189,248,.16), transparent 32%),
+        radial-gradient(circle at 48% 88%, rgba(252,109,38,.12), transparent 32%),
+        var(--bg);
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1120px, calc(100% - 36px)); margin: 0 auto; }
+    nav {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(9,11,20,.72);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.02em; }
+    .mark {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--violet), var(--blue));
+      box-shadow: 0 10px 30px rgba(139,92,246,.32);
+      font-size: 19px;
+    }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .lang, .ghost, .primary {
+      border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;
+      background: rgba(255,255,255,.04); color: var(--text); cursor: pointer;
+      font: inherit; font-weight: 700;
+    }
+    .primary { background: linear-gradient(135deg, var(--violet), #6d5dfc); border: 0; box-shadow: 0 12px 28px rgba(139,92,246,.28); }
+    .hero { padding: 92px 0 52px; text-align: center; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border: 1px solid rgba(139,92,246,.35); border-radius: 999px;
+      color: #d8ccff; background: rgba(139,92,246,.09); font-size: 14px; font-weight: 750;
+    }
+    h1 { margin: 24px auto 18px; max-width: 920px; font-size: clamp(42px, 7vw, 78px); line-height: .98; letter-spacing: -.055em; }
+    .gradient { background: linear-gradient(90deg, #fff, #c7b8ff 45%, #7dd3fc); -webkit-background-clip: text; color: transparent; }
+    .lead { max-width: 760px; margin: 0 auto; color: var(--muted); font-size: clamp(18px, 2.2vw, 23px); line-height: 1.55; }
+    .hero-actions { margin-top: 32px; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+    .hero-actions a { padding: 14px 19px; border-radius: 14px; font-weight: 800; }
+    .hero-actions .download { background: linear-gradient(135deg, var(--violet), #5b7cfa); box-shadow: 0 18px 38px rgba(91,124,250,.25); }
+    .hero-actions .docs { border: 1px solid var(--line); background: rgba(255,255,255,.045); }
+    .terminal {
+      margin: 54px auto 0; max-width: 900px; text-align: left; overflow: hidden;
+      border: 1px solid var(--line); border-radius: 20px; background: var(--panel-2); box-shadow: var(--shadow);
+    }
+    .terminal-top { padding: 13px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.r { background:#fb7185; }.dot.y{background:#facc15}.dot.g{background:#34d399}
+    pre { margin: 0; padding: 24px; overflow-x: auto; color: #d8def6; line-height: 1.75; font-size: 14px; }
+    .cyan{color:#7dd3fc}.violet{color:#c4b5fd}.green{color:#6ee7b7}.dim{color:#7f89a8}
+    section { padding: 54px 0; }
+    .section-head { max-width: 720px; margin-bottom: 26px; }
+    h2 { margin: 0 0 12px; font-size: clamp(30px, 4vw, 46px); letter-spacing: -.035em; }
+    .section-head p { margin: 0; color: var(--muted); line-height: 1.65; font-size: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 12px 42px rgba(0,0,0,.18); }
+    .icon { font-size: 27px; }
+    .card h3 { margin: 16px 0 9px; font-size: 19px; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .steps { counter-reset: step; display: grid; gap: 12px; }
+    .step { counter-increment: step; display: grid; grid-template-columns: 46px 1fr; gap: 16px; align-items: start; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.035); }
+    .step:before { content: counter(step); width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: linear-gradient(135deg,var(--violet),#5b7cfa); font-weight: 900; }
+    .step h3 { margin: 2px 0 7px; }
+    .step p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .notice { padding: 22px; border-radius: 18px; border: 1px solid rgba(252,109,38,.32); background: rgba(252,109,38,.08); color: #ffd8c4; line-height: 1.65; }
+    footer { padding: 50px 0 70px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 48px; }
+    .footer-row { display:flex; justify-content:space-between; gap:20px; align-items:center; flex-wrap:wrap; }
+    [data-lang="en"] { display: none; }
+    body.en [data-lang="ru"] { display: none; }
+    body.en [data-lang="en"] { display: initial; }
+    body.en div[data-lang="en"], body.en section[data-lang="en"], body.en p[data-lang="en"] { display: block; }
+    @media (max-width: 860px) { .grid{grid-template-columns:1fr 1fr}.hero{padding-top:70px} }
+    @media (max-width: 620px) { .grid{grid-template-columns:1fr}.nav-actions .ghost{display:none}.brand span:last-child{display:none}.hero{padding-top:56px}.terminal{border-radius:15px} }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top"><span class="mark">↻</span><span>GitLab Duo CLI Switcher</span></a>
+      <div class="nav-actions">
+        <a class="ghost" href="../README.md" data-lang="ru">Документация</a>
+        <a class="ghost" href="../README_EN.md" data-lang="en">Documentation</a>
+        <button class="lang" id="lang">EN</button>
+        <a class="primary" href="../dist/GitLabDuoCLI-Switcher-v8.3.2.zip" data-lang="ru">Скачать</a>
+        <a class="primary" href="../dist/GitLabDuoCLI-Switcher-v8.3.2.zip" data-lang="en">Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="hero wrap">
+      <div class="eyebrow" data-lang="ru">⚡ Windows · PowerShell 5.1 · v8.3.2</div>
+      <div class="eyebrow" data-lang="en">⚡ Windows · PowerShell 5.1 · v8.3.2</div>
+      <h1 class="gradient" data-lang="ru">Несколько Duo-аккаунтов. Один проект. Контекст остаётся с вами.</h1>
+      <h1 class="gradient" data-lang="en">Multiple Duo accounts. One project. Keep your local context.</h1>
+      <p class="lead" data-lang="ru">Локальный Hub для переключения между вашими GitLab-аккаунтами, запуска Duo CLI в нужном репозитории и переноса компактной памяти проекта между профилями.</p>
+      <p class="lead" data-lang="en">A local Hub for switching between your GitLab accounts, launching Duo CLI in the right repository, and carrying compact project memory across profiles.</p>
+      <div class="hero-actions">
+        <a class="download" href="../dist/GitLabDuoCLI-Switcher-v8.3.2.zip" data-lang="ru">⬇ Скачать v8.3.2</a>
+        <a class="download" href="../dist/GitLabDuoCLI-Switcher-v8.3.2.zip" data-lang="en">⬇ Download v8.3.2</a>
+        <a class="docs" href="../README.md" data-lang="ru">Открыть инструкцию</a>
+        <a class="docs" href="../README_EN.md" data-lang="en">Open documentation</a>
+      </div>
+
+      <div class="terminal" aria-label="Switcher terminal preview">
+        <div class="terminal-top"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+        <pre><span class="cyan">GitLab Duo CLI Switcher  v8.3.2</span>
+
+  <span class="dim">Проект:</span>   Karo
+  <span class="dim">Папка:</span>    D:\projects\Karo
+  <span class="dim">Модель:</span>   <span class="violet">gpt_5_6_sol</span>
+  <span class="dim">Память:</span>   <span class="green">compact transcript ready</span>
+
+  1. Main account        ███████░░░
+  2. Testing account     █████████░
+  3. Backup account      ██████░░░░
+
+  <span class="cyan">[номер]</span> Запустить аккаунт   <span class="cyan">[A]</span> Добавить аккаунт
+  <span class="cyan">[P]</span> Проект   <span class="cyan">[T]</span> Контекст   <span class="cyan">[M]</span> Управление</pre>
+      </div>
+    </header>
+
+    <section class="wrap">
+      <div class="section-head" data-lang="ru"><h2>Что умеет Switcher</h2><p>Не подменяет GitLab и не выдаёт подписку — он аккуратно связывает ваши профили, проекты и локальный рабочий контекст.</p></div>
+      <div class="section-head" data-lang="en"><h2>What Switcher does</h2><p>It does not replace GitLab or grant a subscription. It connects your profiles, projects, and local working context in one practical workflow.</p></div>
+      <div class="grid">
+        <article class="card"><div class="icon">👥</div><h3 data-lang="ru">Изолированные аккаунты</h3><h3 data-lang="en">Isolated accounts</h3><p data-lang="ru">Каждый профиль получает отдельную OAuth-конфигурацию glab и собственную папку авторизации.</p><p data-lang="en">Every profile receives a separate glab OAuth configuration and authentication directory.</p></article>
+        <article class="card"><div class="icon">🧠</div><h3 data-lang="ru">Локальная память</h3><h3 data-lang="en">Local memory</h3><p data-lang="ru">Компактный transcript очищает терминальный шум и переносит полезный контекст к следующему профилю.</p><p data-lang="en">A compact transcript removes terminal noise and carries useful project context to the next profile.</p></article>
+        <article class="card"><div class="icon">📁</div><h3 data-lang="ru">Несколько проектов</h3><h3 data-lang="en">Multiple projects</h3><p data-lang="ru">Сохраняйте локальные Git-репозитории и запускайте Duo CLI сразу в правильной рабочей папке.</p><p data-lang="en">Save local Git repositories and launch Duo CLI directly in the correct working directory.</p></article>
+        <article class="card"><div class="icon">📊</div><h3 data-lang="ru">Usage в одном окне</h3><h3 data-lang="en">Usage in one view</h3><p data-lang="ru">Hub показывает доступные данные usage по аккаунтам, когда GitLab API их возвращает.</p><p data-lang="en">The Hub displays available account usage data whenever the GitLab API provides it.</p></article>
+        <article class="card"><div class="icon">🩺</div><h3 data-lang="ru">Doctor и восстановление</h3><h3 data-lang="en">Doctor and recovery</h3><p data-lang="ru">Проверка glab, OAuth, ConPTY-рекордера, контекста, памяти и прав локальных профилей.</p><p data-lang="en">Checks glab, OAuth, the ConPTY recorder, project context, memory, and local profile permissions.</p></article>
+        <article class="card"><div class="icon">🔐</div><h3 data-lang="ru">Безопасные настройки</h3><h3 data-lang="en">Safer defaults</h3><p data-lang="ru">Подтверждение команд включено, а потенциально чувствительные сырые VT-логи выключены.</p><p data-lang="en">Command confirmation is enabled, while potentially sensitive raw VT logs are disabled.</p></article>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head" data-lang="ru"><h2>Запуск за несколько минут</h2><p>Без установщика и без ручного копирования OAuth-токенов.</p></div>
+      <div class="section-head" data-lang="en"><h2>Start in a few minutes</h2><p>No installer and no manual copying of OAuth tokens.</p></div>
+      <div class="steps">
+        <div class="step"><div><h3 data-lang="ru">Скачайте и распакуйте ZIP</h3><h3 data-lang="en">Download and extract the ZIP</h3><p data-lang="ru">Все четыре файла должны находиться рядом в обычной папке.</p><p data-lang="en">Keep all four files together in a normal directory.</p></div></div>
+        <div class="step"><div><h3 data-lang="ru">Запустите Run.cmd</h3><h3 data-lang="en">Run Run.cmd</h3><p data-lang="ru">Скрипт проверит PowerShell, glab и подготовит локальный Hub.</p><p data-lang="en">The script validates PowerShell and glab, then prepares the local Hub.</p></div></div>
+        <div class="step"><div><h3 data-lang="ru">Добавьте свои GitLab-аккаунты</h3><h3 data-lang="en">Add your GitLab accounts</h3><p data-lang="ru">Каждый вход проходит через официальный GitLab OAuth в браузере.</p><p data-lang="en">Every sign-in uses the official GitLab OAuth flow in your browser.</p></div></div>
+        <div class="step"><div><h3 data-lang="ru">Выберите проект и работайте</h3><h3 data-lang="en">Select a project and work</h3><p data-lang="ru">Выходите через /exit, меняйте профиль и продолжайте с локальной памятью проекта.</p><p data-lang="en">Use /exit, switch profiles, and continue with compact local project memory.</p></div></div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="notice" data-lang="ru"><strong>Важно.</strong> Используйте только аккаунты, которыми вы имеете право пользоваться. Доступные модели и лимиты определяет GitLab. Switcher не создаёт квоту и не обходит биллинг. Сырые логи могут содержать секреты — оставляйте их выключенными без необходимости.</div>
+      <div class="notice" data-lang="en"><strong>Important.</strong> Use only accounts you are authorized to access. Models and limits are controlled by GitLab. Switcher does not create quota or bypass billing. Raw logs may contain secrets, so leave them disabled unless required.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <span>GitLab Duo CLI Switcher 8.3.2</span>
+      <span data-lang="ru">Неофициальный community-инструмент · Не связан с GitLab или OpenAI</span>
+      <span data-lang="en">Unofficial community utility · Not affiliated with GitLab or OpenAI</span>
+    </div>
+  </footer>
+
+  <script>
+    const button = document.getElementById('lang');
+    const saved = localStorage.getItem('switcher-lang');
+    if (saved === 'en') document.body.classList.add('en');
+    const sync = () => {
+      const en = document.body.classList.contains('en');
+      document.documentElement.lang = en ? 'en' : 'ru';
+      button.textContent = en ? 'RU' : 'EN';
+    };
+    sync();
+    button.addEventListener('click', () => {
+      document.body.classList.toggle('en');
+      localStorage.setItem('switcher-lang', document.body.classList.contains('en') ? 'en' : 'ru');
+      sync();
+    });
+  </script>
+</body>
+</html>
